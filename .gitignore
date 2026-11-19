@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store
+*.log
+
+# Local development scratch and generated source archive
+work/
+outputs/*.zip
