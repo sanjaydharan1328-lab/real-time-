@@ -14,10 +14,17 @@ import { configureSockets } from "./sockets/index.js";
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
-const io = new Server(server, { cors: { origin: allowedOrigin, methods: ["GET", "POST"] } });
+const configuredOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
+  .split(",").map((origin) => origin.trim()).filter(Boolean);
+const isAllowedOrigin = (origin) => !origin
+  || configuredOrigins.includes(origin)
+  || origin === "http://localhost:5173"
+  // Allow Vercel preview and production URLs for this project only.
+  || /^https:\/\/[a-z0-9-]+-sd-a2d1\.vercel\.app$/i.test(origin);
+const corsOrigin = (origin, callback) => callback(null, isAllowedOrigin(origin));
+const io = new Server(server, { cors: { origin: corsOrigin, methods: ["GET", "POST"] } });
 app.set("io", io);
-app.use(cors({ origin: allowedOrigin }));
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json({ limit: "1mb" }));
 app.use((req, res, next) => {
   const started = Date.now();
