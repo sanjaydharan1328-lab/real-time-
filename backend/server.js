@@ -16,8 +16,12 @@ const app = express();
 const server = http.createServer(app);
 const configuredOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
   .split(",").map((origin) => origin.trim()).filter(Boolean);
+const productionOrigins = new Set([
+  "https://real-time-alpha-six.vercel.app",
+]);
 const isAllowedOrigin = (origin) => !origin
   || configuredOrigins.includes(origin)
+  || productionOrigins.has(origin)
   || origin === "http://localhost:5173"
   // Allow Vercel preview and production URLs for this project only.
   || /^https:\/\/[a-z0-9-]+-sd-a2d1\.vercel\.app$/i.test(origin);
